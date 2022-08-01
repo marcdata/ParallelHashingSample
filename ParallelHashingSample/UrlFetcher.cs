@@ -14,14 +14,10 @@ namespace ParallelHashingSample
         private int maxParallel;
         private FileInfo fileInfo;
 
-        private MD5 md5;
-
         public UrlFetcher(FileInfo fileIn, int maxParallel)
         {
             this.fileInfo = fileIn;
             this.maxParallel = maxParallel;
-
-            md5 = MD5.Create();
         }
 
         public async Task Go()
@@ -30,8 +26,8 @@ namespace ParallelHashingSample
             // within each batch, gate by n concurrent url fetches at a time.
 
             var batchsize = 100;
-            var semaphore = new SemaphoreSlim(maxParallel, this.maxParallel);
             var sequenceNum = 1;
+            var semaphore = new SemaphoreSlim(maxParallel, this.maxParallel);
 
             var outputCollector = new List<(int sequenceNum, string url, string md5hash)>();
             var currentTasks = new List<Task<(int sequenceNum, string url, string md5hash)>>();
@@ -67,11 +63,8 @@ namespace ParallelHashingSample
 
             foreach(var x in outputCollector)
             {
-                // Console.WriteLine(x.sequenceNum + " " + x.md5hash);
-
                 Console.WriteLine(x.md5hash);
             }
-
         }
 
         private async Task ClearCurrentBatch(List<Task<(int sequenceNum, string url, string md5hash)>> tasks, List<(int sequenceNum, string url, string md5hash)> outputCollector)
@@ -85,20 +78,14 @@ namespace ParallelHashingSample
             tasks.Clear();
         }
 
-        public async static Task<string> GetMd5HashForSite(string url)
+        // Convenience method
+        public async static Task<string> GetMd5HashForUrl(string url)
         {
-            var httpClient = new System.Net.Http.HttpClient();
-
-            var response = await httpClient.GetAsync(url);
-
-            var md5 = MD5.Create();
-
-            var hash = md5.ComputeHash(response.Content.ReadAsStreamAsync().Result);
-            var hashAsString = BitConverter.ToString(hash).Replace("-", "");
-            return hashAsString;
+            var semaphore = new SemaphoreSlim(1, 1);
+            return (await GetMd5TupleForUrl(1, url, semaphore)).md5hash;
         }
 
-        private async Task<(int sequenceNum, string url, string md5hash)> GetMd5TupleForUrl(int sequenceNum, string url, SemaphoreSlim semaphore)
+        private async static Task<(int sequenceNum, string url, string md5hash)> GetMd5TupleForUrl(int sequenceNum, string url, SemaphoreSlim semaphore)
         {
             try
             {

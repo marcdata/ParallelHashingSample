@@ -13,10 +13,10 @@ namespace UnitTests
             var url = "http://www.google.com";
 
             // act 
-            var md5Hash = UrlFetcher.GetMd5HashForSite(url).Result;
+            var md5Hash = UrlFetcher.GetMd5HashForUrl(url).Result;
 
             // assert
-            Assert.NotEqual("", md5Hash);
+            Assert.Equal("38AF87976F5D5DA39D6E25136BDDE320", md5Hash);
 
         }
     }

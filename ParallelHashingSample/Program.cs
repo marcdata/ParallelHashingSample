@@ -12,12 +12,10 @@ namespace ParallelHashingSample
         {
             (var fileIn, var maxParallel) = HandleArgs(args);
 
-
-            if(fileIn == "")
+            if(fileIn == "" || args.Length == 0)
             {
-                fileIn = "DefaultUrls.txt";
-
-                // working assumption test mode invoked from local bin folder.
+                Console.WriteLine($"Usage: ParallelHashingSample.exe [filename] [max parallelization]");
+                return;
             }
 
             FileInfo fileInfo = new FileInfo(fileIn);
