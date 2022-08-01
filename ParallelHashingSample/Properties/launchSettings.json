@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ParallelHashingSample": {
+      "commandName": "Project",
+      "commandLineArgs": "../../../SampleInput2.txt 2"
+    }
+  }
+}
